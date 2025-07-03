@@ -1,395 +1,356 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Brewing Guide - Fellow Aiden Optimizer</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-        }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+import React, { useState, useRef } from 'react';
+import { Camera, Download, Share2, Coffee, Thermometer, Clock, Droplets } from 'lucide-react';
+
+const CoffeeBrewingApp = () => {
+  const [currentStep, setCurrentStep] = useState('camera');
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [coffeeAnalysis, setCoffeeAnalysis] = useState(null);
+  const [useApax, setUseApax] = useState(false);
+  const [brewingRecipe, setBrewingRecipe] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleImageCapture = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCapturedImage(e.target.result);
+        setCurrentStep('analyzing');
+        analyzeCoffee(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const analyzeCoffee = async (imageData) => {
+    setIsAnalyzing(true);
     
-    <script type="text/babel">
-        const { useState, useRef } = React;
-        
-        // Lucide React icons as inline SVG components
-        const Camera = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-        );
-        
-        const Download = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-        );
-        
-        const Share2 = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-            </svg>
-        );
-        
-        const Coffee = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 14s-1 0-1-1 1-1 1-1h5.9a2 2 0 002-2v-1a2 2 0 00-2-2H6s-1 0-1-1 1-1 1-1h8.1a2 2 0 012 2v1a2 2 0 01-2 2H7z" />
-            </svg>
-        );
-        
-        const Thermometer = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-        );
-        
-        const Clock = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        );
-        
-        const Droplets = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7.5 14.25c0-1.886 1.114-3.5 2.5-3.5s2.5 1.614 2.5 3.5-1.114 3.5-2.5 3.5-2.5-1.614-2.5-3.5zm7.5 0c0-1.886 1.114-3.5 2.5-3.5s2.5 1.614 2.5 3.5-1.114 3.5-2.5 3.5-2.5-1.614-2.5-3.5z" />
-            </svg>
-        );
+    try {
+      const prompt = `Analyze this coffee bag image and identify:
+      1. Coffee bean origin/region
+      2. Roast level (light, medium, dark)
+      3. Bean type (single origin, blend, etc.)
+      4. Any flavor notes mentioned
+      5. Recommended brewing method hints
+      
+      Respond with a JSON object containing these details.`;
 
-        const CoffeeBrewingApp = () => {
-            const [currentStep, setCurrentStep] = useState('camera');
-            const [capturedImage, setCapturedImage] = useState(null);
-            const [coffeeAnalysis, setCoffeeAnalysis] = useState(null);
-            const [useApax, setUseApax] = useState(false);
-            const [brewingRecipe, setBrewingRecipe] = useState(null);
-            const [isAnalyzing, setIsAnalyzing] = useState(false);
-            const fileInputRef = useRef(null);
+      const response = await window.claude.complete(prompt);
+      const analysis = JSON.parse(response);
+      
+      setCoffeeAnalysis(analysis);
+      setCurrentStep('waterChoice');
+    } catch (error) {
+      // Fallback mock analysis if Claude API fails
+      setCoffeeAnalysis({
+        origin: "Ethiopian Yirgacheffe",
+        roastLevel: "medium-light",
+        beanType: "single origin",
+        flavorNotes: ["floral", "citrus", "tea-like"],
+        grindRecommendation: "medium-fine"
+      });
+      setCurrentStep('waterChoice');
+    }
+    
+    setIsAnalyzing(false);
+  };
 
-            const handleImageCapture = (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        setCapturedImage(e.target.result);
-                        setCurrentStep('analyzing');
-                        analyzeCoffee(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
+  const generateRecipe = async () => {
+    const prompt = `Based on this coffee analysis: ${JSON.stringify(coffeeAnalysis)}
+    and water choice: ${useApax ? 'with Apax drops' : 'pure water'}
+    
+    Generate a 3-step Fellow Aiden brewing recipe with specific temperatures and times.
+    Consider that Apax drops affect extraction, so adjust accordingly.
+    
+    Respond with JSON in this format:
+    {
+      "recipeName": "Coffee Name - Brewing Method",
+      "steps": [
+        {"name": "Bloom", "temperature": 205, "time": "30 seconds", "action": "Saturate grounds evenly"},
+        {"name": "First Pour", "temperature": 200, "time": "2 minutes", "action": "Slow circular pour"},
+        {"name": "Final Extraction", "temperature": 195, "time": "1 minute", "action": "Complete extraction"}
+      ],
+      "totalTime": "3 minutes 30 seconds",
+      "coffeeAmount": "25g",
+      "waterAmount": "400ml",
+      "grindSize": "medium-fine"
+    }`;
 
-            const analyzeCoffee = async (imageData) => {
-                setIsAnalyzing(true);
-                
-                try {
-                    // Simulated analysis - in real implementation, this would use Claude's vision API
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    // Mock analysis result
-                    setCoffeeAnalysis({
-                        origin: "Ethiopian Yirgacheffe",
-                        roastLevel: "medium-light",
-                        beanType: "single origin",
-                        flavorNotes: ["floral", "citrus", "tea-like"],
-                        grindRecommendation: "medium-fine"
-                    });
-                    setCurrentStep('waterChoice');
-                } catch (error) {
-                    console.error('Analysis error:', error);
-                    setCoffeeAnalysis({
-                        origin: "Ethiopian Yirgacheffe",
-                        roastLevel: "medium-light",
-                        beanType: "single origin",
-                        flavorNotes: ["floral", "citrus", "tea-like"],
-                        grindRecommendation: "medium-fine"
-                    });
-                    setCurrentStep('waterChoice');
-                }
-                
-                setIsAnalyzing(false);
-            };
+    try {
+      const response = await window.claude.complete(prompt);
+      const recipe = JSON.parse(response);
+      setBrewingRecipe(recipe);
+      setCurrentStep('recipe');
+    } catch (error) {
+      // Fallback recipe
+      const baseTemp = useApax ? 195 : 200;
+      setBrewingRecipe({
+        recipeName: `${coffeeAnalysis.origin} - Optimized Brew`,
+        steps: [
+          {"name": "Bloom", "temperature": baseTemp + 5, "time": "30 seconds", "action": "Saturate grounds evenly"},
+          {"name": "First Pour", "temperature": baseTemp, "time": "2 minutes", "action": "Slow circular pour"},
+          {"name": "Final Extraction", "temperature": baseTemp - 5, "time": "1 minute", "action": "Complete extraction"}
+        ],
+        totalTime: "3 minutes 30 seconds",
+        coffeeAmount: "25g",
+        waterAmount: "400ml",
+        grindSize: "medium-fine"
+      });
+      setCurrentStep('recipe');
+    }
+  };
 
-            const generateRecipe = async () => {
-                try {
-                    // Simulated recipe generation
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    const baseTemp = useApax ? 195 : 200;
-                    setBrewingRecipe({
-                        recipeName: `${coffeeAnalysis.origin} - Optimized Brew`,
-                        steps: [
-                            {"name": "Bloom", "temperature": baseTemp + 5, "time": "30 seconds", "action": "Saturate grounds evenly"},
-                            {"name": "First Pour", "temperature": baseTemp, "time": "2 minutes", "action": "Slow circular pour"},
-                            {"name": "Final Extraction", "temperature": baseTemp - 5, "time": "1 minute", "action": "Complete extraction"}
-                        ],
-                        totalTime: "3 minutes 30 seconds",
-                        coffeeAmount: "25g",
-                        waterAmount: "400ml",
-                        grindSize: "medium-fine"
-                    });
-                    setCurrentStep('recipe');
-                } catch (error) {
-                    console.error('Recipe generation error:', error);
-                }
-            };
+  const parseTimeToSeconds = (timeStr) => {
+    const parts = timeStr.split(' ');
+    const value = parseInt(parts[0]);
+    const unit = parts[1];
+    
+    if (unit.includes('minute')) {
+      return value * 60;
+    } else if (unit.includes('second')) {
+      return value;
+    }
+    return 60; // default
+  };
 
-            const parseTimeToSeconds = (timeStr) => {
-                const parts = timeStr.split(' ');
-                const value = parseInt(parts[0]);
-                const unit = parts[1];
-                
-                if (unit.includes('minute')) {
-                    return value * 60;
-                } else if (unit.includes('second')) {
-                    return value;
-                }
-                return 60;
-            };
+  const downloadAidenFile = () => {
+    const aidenRecipe = {
+      name: brewingRecipe.recipeName,
+      version: "1.0",
+      steps: brewingRecipe.steps.map((step, index) => ({
+        step: index + 1,
+        name: step.name,
+        temperature_f: step.temperature,
+        duration_seconds: parseTimeToSeconds(step.time),
+        action: step.action
+      })),
+      coffee_amount_g: parseInt(brewingRecipe.coffeeAmount),
+      water_amount_ml: parseInt(brewingRecipe.waterAmount),
+      grind_size: brewingRecipe.grindSize,
+      water_treatment: useApax ? "apax_drops" : "pure",
+      created_by: "Coffee Brewing Guide App"
+    };
 
-            const downloadAidenFile = () => {
-                const aidenRecipe = {
-                    name: brewingRecipe.recipeName,
-                    version: "1.0",
-                    steps: brewingRecipe.steps.map((step, index) => ({
-                        step: index + 1,
-                        name: step.name,
-                        temperature_f: step.temperature,
-                        duration_seconds: parseTimeToSeconds(step.time),
-                        action: step.action
-                    })),
-                    coffee_amount_g: parseInt(brewingRecipe.coffeeAmount),
-                    water_amount_ml: parseInt(brewingRecipe.waterAmount),
-                    grind_size: brewingRecipe.grindSize,
-                    water_treatment: useApax ? "apax_drops" : "pure",
-                    created_by: "Coffee Brewing Guide App"
-                };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(aidenRecipe, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `${brewingRecipe.recipeName.replace(/[^a-z0-9]/gi, '_')}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
 
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(aidenRecipe, null, 2));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", `${brewingRecipe.recipeName.replace(/[^a-z0-9]/gi, '_')}.json`);
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-            };
+  const shareRecipe = () => {
+    const recipeText = `${brewingRecipe.recipeName}\n\n` +
+      brewingRecipe.steps.map((step, i) => 
+        `Step ${i + 1}: ${step.name}\n${step.temperature}°F for ${step.time}\n${step.action}`
+      ).join('\n\n') +
+      `\n\nCoffee: ${brewingRecipe.coffeeAmount}\nWater: ${brewingRecipe.waterAmount}\nGrind: ${brewingRecipe.grindSize}` +
+      `\nWater: ${useApax ? 'With Apax drops' : 'Pure water'}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: brewingRecipe.recipeName,
+        text: recipeText
+      });
+    } else {
+      navigator.clipboard.writeText(recipeText);
+      alert('Recipe copied to clipboard!');
+    }
+  };
 
-            const shareRecipe = () => {
-                const recipeText = `${brewingRecipe.recipeName}\n\n` +
-                    brewingRecipe.steps.map((step, i) => 
-                        `Step ${i + 1}: ${step.name}\n${step.temperature}°F for ${step.time}\n${step.action}`
-                    ).join('\n\n') +
-                    `\n\nCoffee: ${brewingRecipe.coffeeAmount}\nWater: ${brewingRecipe.waterAmount}\nGrind: ${brewingRecipe.grindSize}` +
-                    `\nWater: ${useApax ? 'With Apax drops' : 'Pure water'}`;
-                
-                if (navigator.share) {
-                    navigator.share({
-                        title: brewingRecipe.recipeName,
-                        text: recipeText
-                    });
-                } else {
-                    navigator.clipboard.writeText(recipeText);
-                    alert('Recipe copied to clipboard!');
-                }
-            };
+  const resetApp = () => {
+    setCurrentStep('camera');
+    setCapturedImage(null);
+    setCoffeeAnalysis(null);
+    setBrewingRecipe(null);
+    setUseApax(false);
+  };
 
-            const resetApp = () => {
-                setCurrentStep('camera');
-                setCapturedImage(null);
-                setCoffeeAnalysis(null);
-                setBrewingRecipe(null);
-                setUseApax(false);
-            };
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4">
+      <div className="max-w-md mx-auto">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-amber-600 to-orange-600 p-6 text-white">
+            <div className="flex items-center space-x-3">
+              <Coffee className="w-8 h-8" />
+              <div>
+                <h1 className="text-xl font-bold">Coffee Brew Guide</h1>
+                <p className="text-amber-100 text-sm">Fellow Aiden Optimizer</p>
+              </div>
+            </div>
+          </div>
 
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4">
-                    <div className="max-w-md mx-auto">
-                        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-                            <div className="bg-gradient-to-r from-amber-600 to-orange-600 p-6 text-white">
-                                <div className="flex items-center space-x-3">
-                                    <Coffee className="w-8 h-8" />
-                                    <div>
-                                        <h1 className="text-xl font-bold">Coffee Brew Guide</h1>
-                                        <p className="text-amber-100 text-sm">Fellow Aiden Optimizer</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {currentStep === 'camera' && (
-                                <div className="p-6 text-center">
-                                    <div className="mb-8">
-                                        <div className="w-24 h-24 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <Camera className="w-12 h-12 text-white" />
-                                        </div>
-                                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Capture Your Coffee</h2>
-                                        <p className="text-gray-600">Take a clear photo of your coffee bag to get started</p>
-                                    </div>
-                                    
-                                    <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                                    >
-                                        Take Photo
-                                    </button>
-                                    
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageCapture}
-                                        className="hidden"
-                                    />
-                                </div>
-                            )}
-
-                            {currentStep === 'analyzing' && (
-                                <div className="p-6 text-center">
-                                    {capturedImage && (
-                                        <img src={capturedImage} alt="Coffee bag" className="w-full h-48 object-cover rounded-2xl mb-6" />
-                                    )}
-                                    
-                                    <div className="mb-8">
-                                        <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Analyzing Coffee</h2>
-                                        <p className="text-gray-600">Identifying bean characteristics and optimal brewing parameters...</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {currentStep === 'waterChoice' && coffeeAnalysis && (
-                                <div className="p-6">
-                                    <div className="mb-6">
-                                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Coffee Analysis</h2>
-                                        <div className="bg-amber-50 rounded-2xl p-4 mb-6">
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                <div><span className="font-semibold">Origin:</span> {coffeeAnalysis.origin}</div>
-                                                <div><span className="font-semibold">Roast:</span> {coffeeAnalysis.roastLevel}</div>
-                                                <div className="col-span-2"><span className="font-semibold">Notes:</span> {coffeeAnalysis.flavorNotes?.join(', ')}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-8">
-                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                                            <Droplets className="w-5 h-5 mr-2 text-blue-500" />
-                                            Water Preparation
-                                        </h3>
-                                        
-                                        <div className="space-y-3">
-                                            <button
-                                                onClick={() => setUseApax(false)}
-                                                className={`w-full p-4 rounded-2xl border-2 transition-all ${
-                                                    !useApax 
-                                                        ? 'border-amber-500 bg-amber-50 text-amber-800' 
-                                                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                                                }`}
-                                            >
-                                                <div className="font-semibold">Pure Water</div>
-                                                <div className="text-sm opacity-75">Standard filtered water</div>
-                                            </button>
-                                            
-                                            <button
-                                                onClick={() => setUseApax(true)}
-                                                className={`w-full p-4 rounded-2xl border-2 transition-all ${
-                                                    useApax 
-                                                        ? 'border-amber-500 bg-amber-50 text-amber-800' 
-                                                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                                                }`}
-                                            >
-                                                <div className="font-semibold">Water + Apax Drops</div>
-                                                <div className="text-sm opacity-75">Enhanced mineral content</div>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={generateRecipe}
-                                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                                    >
-                                        Generate Recipe
-                                    </button>
-                                </div>
-                            )}
-
-                            {currentStep === 'recipe' && brewingRecipe && (
-                                <div className="p-6">
-                                    <div className="mb-6">
-                                        <h2 className="text-xl font-bold text-gray-800 mb-2">{brewingRecipe.recipeName}</h2>
-                                        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
-                                            <span className="flex items-center"><Clock className="w-4 h-4 mr-1" />{brewingRecipe.totalTime}</span>
-                                            <span>{brewingRecipe.coffeeAmount} coffee</span>
-                                            <span>{brewingRecipe.waterAmount} water</span>
-                                        </div>
-                                        {useApax && (
-                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-4">
-                                                <span className="text-blue-800 text-sm flex items-center">
-                                                    <Droplets className="w-4 h-4 mr-1" />
-                                                    Recipe optimized for Apax drops
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="space-y-4 mb-8">
-                                        {brewingRecipe.steps.map((step, index) => (
-                                            <div key={index} className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <h3 className="font-bold text-gray-800">Step {index + 1}: {step.name}</h3>
-                                                    <div className="flex items-center text-orange-600 font-semibold">
-                                                        <Thermometer className="w-4 h-4 mr-1" />
-                                                        {step.temperature}°F
-                                                    </div>
-                                                </div>
-                                                <div className="text-sm text-gray-600 mb-1">Duration: {step.time}</div>
-                                                <div className="text-sm text-gray-700">{step.action}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <button
-                                            onClick={downloadAidenFile}
-                                            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-6 rounded-2xl font-semibold flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                                        >
-                                            <Download className="w-5 h-5" />
-                                            <span>Download for Fellow Aiden</span>
-                                        </button>
-                                        
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <button
-                                                onClick={shareRecipe}
-                                                className="bg-blue-500 text-white py-3 px-4 rounded-2xl font-semibold flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                                            >
-                                                <Share2 className="w-4 h-4" />
-                                                <span>Share</span>
-                                            </button>
-                                            
-                                            <button
-                                                onClick={resetApp}
-                                                className="bg-gray-500 text-white py-3 px-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                                            >
-                                                New Coffee
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+          {/* Camera Step */}
+          {currentStep === 'camera' && (
+            <div className="p-6 text-center">
+              <div className="mb-8">
+                <div className="w-24 h-24 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Camera className="w-12 h-12 text-white" />
                 </div>
-            );
-        };
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Capture Your Coffee</h2>
+                <p className="text-gray-600">Take a clear photo of your coffee bag to get started</p>
+              </div>
+              
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                Take Photo
+              </button>
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleImageCapture}
+                className="hidden"
+              />
+            </div>
+          )}
 
-        ReactDOM.render(<CoffeeBrewingApp />, document.getElementById('root'));
-    </script>
-</body>
-</html>
+          {/* Analyzing Step */}
+          {currentStep === 'analyzing' && (
+            <div className="p-6 text-center">
+              {capturedImage && (
+                <img src={capturedImage} alt="Coffee bag" className="w-full h-48 object-cover rounded-2xl mb-6" />
+              )}
+              
+              <div className="mb-8">
+                <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Analyzing Coffee</h2>
+                <p className="text-gray-600">Identifying bean characteristics and optimal brewing parameters...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Water Choice Step */}
+          {currentStep === 'waterChoice' && coffeeAnalysis && (
+            <div className="p-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Coffee Analysis</h2>
+                <div className="bg-amber-50 rounded-2xl p-4 mb-6">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div><span className="font-semibold">Origin:</span> {coffeeAnalysis.origin}</div>
+                    <div><span className="font-semibold">Roast:</span> {coffeeAnalysis.roastLevel}</div>
+                    <div className="col-span-2"><span className="font-semibold">Notes:</span> {coffeeAnalysis.flavorNotes?.join(', ')}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                  <Droplets className="w-5 h-5 mr-2 text-blue-500" />
+                  Water Preparation
+                </h3>
+                
+                <div className="space-y-3">
+                  <button
+                    onClick={() => setUseApax(false)}
+                    className={`w-full p-4 rounded-2xl border-2 transition-all ${
+                      !useApax 
+                        ? 'border-amber-500 bg-amber-50 text-amber-800' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-semibold">Pure Water</div>
+                    <div className="text-sm opacity-75">Standard filtered water</div>
+                  </button>
+                  
+                  <button
+                    onClick={() => setUseApax(true)}
+                    className={`w-full p-4 rounded-2xl border-2 transition-all ${
+                      useApax 
+                        ? 'border-amber-500 bg-amber-50 text-amber-800' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-semibold">Water + Apax Drops</div>
+                    <div className="text-sm opacity-75">Enhanced mineral content</div>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={generateRecipe}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                Generate Recipe
+              </button>
+            </div>
+          )}
+
+          {/* Recipe Step */}
+          {currentStep === 'recipe' && brewingRecipe && (
+            <div className="p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">{brewingRecipe.recipeName}</h2>
+                <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                  <span className="flex items-center"><Clock className="w-4 h-4 mr-1" />{brewingRecipe.totalTime}</span>
+                  <span>{brewingRecipe.coffeeAmount} coffee</span>
+                  <span>{brewingRecipe.waterAmount} water</span>
+                </div>
+                {useApax && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-4">
+                    <span className="text-blue-800 text-sm flex items-center">
+                      <Droplets className="w-4 h-4 mr-1" />
+                      Recipe optimized for Apax drops
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4 mb-8">
+                {brewingRecipe.steps.map((step, index) => (
+                  <div key={index} className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-gray-800">Step {index + 1}: {step.name}</h3>
+                      <div className="flex items-center text-orange-600 font-semibold">
+                        <Thermometer className="w-4 h-4 mr-1" />
+                        {step.temperature}°F
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 mb-1">Duration: {step.time}</div>
+                    <div className="text-sm text-gray-700">{step.action}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={downloadAidenFile}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-6 rounded-2xl font-semibold flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>Download for Fellow Aiden</span>
+                </button>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={shareRecipe}
+                    className="bg-blue-500 text-white py-3 px-4 rounded-2xl font-semibold flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Share</span>
+                  </button>
+                  
+                  <button
+                    onClick={resetApp}
+                    className="bg-gray-500 text-white py-3 px-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                  >
+                    New Coffee
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CoffeeBrewingApp;
